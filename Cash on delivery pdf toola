@@ -1,0 +1,33 @@
+# pdf_company_replacer.py
+# Replaces all instances of the old company name in a PDF with "ABDUL GANI GROUP OF COMPANY"
+
+import fitz  # PyMuPDF
+
+def replace_company_name(input_path, output_path, old_company, new_company):
+    doc = fitz.open(input_path)
+    for page in doc:
+        found = page.search_for(old_company)
+        for rect in found:
+            # Redact the old company name (white rectangle)
+            page.add_redact_annot(rect, fill=(1, 1, 1))
+        page.apply_redactions()
+        for rect in found:
+            # Insert the new company name at the same position
+            page.insert_text(
+                rect[:2],  # (x, y) coordinates
+                new_company,
+                fontsize=12,
+                color=(0, 0, 0),
+                overlay=True
+            )
+    doc.save(output_path)
+    print(f"Company name replaced. Output saved to {output_path}")
+
+if __name__ == "__main__":
+    # Change these as needed
+    input_pdf = "input.pdf"           # Path to your input PDF
+    output_pdf = "output.pdf"         # Path to save the modified PDF
+    old_company = "OLD COMPANY NAME"  # The company name to erase
+
+    # Run the replacement
+    replace_company_name(input_pdf, output_pdf, old_company, "ABDUL GANI GROUP OF COMPANY")
